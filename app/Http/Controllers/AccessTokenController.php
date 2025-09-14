@@ -2,32 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Services\MPesaService;
 
 class AccessTokenController extends Controller
 {
+    protected $mPesaService;
+
+    public function __construct(MPesaService $mPesaService)
+    {
+        $this->mPesaService = $mPesaService;
+    }
+
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request)
+    public function __invoke()
     {
-        $consumer_key = config('mpesa.mpesa_consumer_key');
-        $consumer_secret = config('mpesa.mpesa_consumer_secret');
+        try {
 
-        $access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+            $accessToken = $this->mPesaService->getAccessToken();
 
-        $headers = ['Content-Type:application/json; charset=utf8'];
+            if (!$accessToken) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to get access token'
+                ], 500);
+            }
 
-        $curl = curl_init($access_token_url);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HEADER, false);
-        curl_setopt($curl, CURLOPT_USERPWD, $consumer_key . ':' . $consumer_secret);
+            $response = [
+                'success' => true,
+                'access_token' => $accessToken
+            ];
 
-        $response = curl_exec($curl);
-        $result = json_decode($response);
-        curl_close($curl);
+            return response()->json($response, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        return $result->access_token;
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        }
     }
 }
