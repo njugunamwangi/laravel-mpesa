@@ -1,0 +1,16 @@
+{
+            "TransactionType": "Pay Bill",
+            "TransID": "TIE82RDWB8",
+            "TransTime": "20250914211554",
+            "TransAmount": "10.00",
+            "BusinessShortCode": "600995",
+            "BillRefNumber": "003",
+            "InvoiceNumber": "ThisInvoice",
+            "OrgAccountBalance": "38545470.80",
+            "ThirdPartyTransID": "",
+            "MSISDN": "94c392c311d522da950619227b3361752a42042db7e1e699b26e628305c68a88",
+            "FirstName": "NICHOLAS",
+            "MiddleName": "JOHN",
+            "LastName": "SONGOK"
+        }
+        
