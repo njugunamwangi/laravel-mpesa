@@ -9,15 +9,13 @@ class MPesaService
     protected $consumerKey;
     protected $consumerSecret;
     protected $passKey;
-    protected $accessTokenUrl;
-    protected $processRequestUrl;
-    protected $stkPushQueryUrl;
     protected $shortcode;
     protected $tillNumber;
     protected $initiatorName;
     protected $initiatorPassword;
     protected $b2cShortcode;
     protected $callbacks;
+    protected $urls;
     protected $timestamp;
     protected $password;
 
@@ -32,11 +30,9 @@ class MPesaService
         $this->initiatorPassword    = config('mpesa.initiator_password');
         $this->b2cShortcode         = config('mpesa.b2c_shortcode');
         $this->callbacks            = config('mpesa.callbacks');
+        $this->urls                 = config('mpesa.urls');
         $this->timestamp            = date('YmdHis');
         $this->password             = base64_encode($this->shortcode . $this->passKey . $this->timestamp);
-        $this->accessTokenUrl       = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-        $this->processRequestUrl    = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-        $this->stkPushQueryUrl      = 'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query';
     }
 
     /**
@@ -67,7 +63,7 @@ class MPesaService
     {
         $headers = ['Content-Type:application/json; charset=utf8'];
 
-        $curl = curl_init($this->accessTokenUrl);
+        $curl = curl_init($this->urls['access_token_url']);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HEADER, false);
@@ -121,7 +117,7 @@ class MPesaService
         ]);
 
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->processRequestUrl);
+        curl_setopt($curl, CURLOPT_URL, $this->urls['process_request_url']);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $stkPushHeader);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
@@ -161,7 +157,7 @@ class MPesaService
         $queryHeader = ['Authorization: Bearer ' . $accessToken, 'Content-Type: application/json'];
 
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->stkPushQueryUrl);
+        curl_setopt($curl, CURLOPT_URL, $this->urls['stk_push_query_url']);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $queryHeader);
 
         $curl_post_data = [
@@ -185,5 +181,76 @@ class MPesaService
         ]);
 
         return $data;
+    }
+
+    public function registerC2BUrls()
+    {
+        $accessToken = $this->getAccessToken();
+
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->urls['register_c2b_urls']);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $curl_post_data = [
+            'ShortCode' => $this->b2cShortcode,
+            'ResponseType' => 'Completed',
+            'ConfirmationURL' => $this->callbacks['c2b_confirmation_url'],
+            'ValidationURL' => $this->callbacks['c2b_validation_url']
+        ];
+
+        $dataString = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
+
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
+
+        Log::info('C2B Register URLs Response:', [
+            'raw' => $data
+        ]);
+
+        return $data;
+    }
+
+    public function c2bValidation()
+    {
+        header('Content-Type: application/json');
+
+        $response = '{"ResultCode":0,"ResultDesc":"Validation received successfully"}';
+
+        $mPesaResponse = file_get_contents('php://input');
+
+        $logFile = 'c2b_validation.txt';
+
+        $log = fopen($logFile, 'a');
+
+        fwrite($log, $mPesaResponse);
+
+        fclose($log);
+
+        return $response;
+    }
+
+    public function c2bConfirmation()
+    {
+        header('Content-Type: application/json');
+
+        $response = '{"ResultCode":0,"ResultDesc":"Confirmation received successfully"}';
+
+        $mPesaResponse = file_get_contents('php://input');
+
+        $logFile = 'c2b_confirmation.json';
+
+        $log = fopen($logFile, 'a');
+
+        fwrite($log, $mPesaResponse);
+
+        fclose($log);
+
+        return $response;
     }
 }

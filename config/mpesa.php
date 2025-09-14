@@ -58,6 +58,7 @@ return [
     */
 
     'callbacks' => [
+        'c2b_register_url' => env('MPESA_C2B_REGISTER_URL'),
         'c2b_validation_url' => env('MPESA_C2B_VALIDATION_URL'),
         'c2b_confirmation_url' => env('MPESA_C2B_CONFIRMATION_URL'),
         'b2c_result_url' => env('MPESA_B2C_RESULT_URL'),
@@ -72,5 +73,12 @@ return [
         'b2b_result_url' => env('MPESA_B2B_RESULT_URL'),
         'b2b_timeout_url' => env('MPESA_B2B_TIMEOUT_URL'),
     ],
+
+    'urls' => [
+        'access_token_url' => env('MPESA_ACCESS_TOKEN_URL'),
+        'process_request_url' => env('MPESA_PROCESS_REQUEST_URL'),
+        'stk_push_query_url' => env('MPESA_STK_PUSH_QUERY_URL'),
+        'register_c2b_urls' => env('MPESA_REGISTER_C2B_URLS'),
+    ]
 
 ];
