@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
 class MPesaService
@@ -13,7 +14,7 @@ class MPesaService
     protected $tillNumber;
     protected $initiatorName;
     protected $initiatorPassword;
-    protected $b2cShortcode;
+    protected $businessShortcode;
     protected $callbacks;
     protected $urls;
     protected $timestamp;
@@ -28,7 +29,7 @@ class MPesaService
         $this->tillNumber           = config('mpesa.till_number');
         $this->initiatorName        = config('mpesa.initiator_name');
         $this->initiatorPassword    = config('mpesa.initiator_password');
-        $this->b2cShortcode         = config('mpesa.b2c_shortcode');
+        $this->businessShortcode    = config('mpesa.business_shortcode');
         $this->callbacks            = config('mpesa.callbacks');
         $this->urls                 = config('mpesa.urls');
         $this->timestamp            = date('YmdHis');
@@ -194,7 +195,7 @@ class MPesaService
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
         $curl_post_data = [
-            'ShortCode' => $this->b2cShortcode,
+            'ShortCode' => $this->businessShortcode,
             'ResponseType' => 'Completed',
             'ConfirmationURL' => $this->callbacks['c2b_confirmation_url'],
             'ValidationURL' => $this->callbacks['c2b_validation_url']
@@ -252,5 +253,82 @@ class MPesaService
         fclose($log);
 
         return $response;
+    }
+
+    public function securityCredential()
+    {
+        $password = $this->initiatorPassword;
+
+        // Read the certificate file
+        $certificatePath = storage_path('app/public/sandboxCertificate.cer');
+
+        if (!file_exists($certificatePath)) {
+            throw new \Exception('Certificate file not found: ' . $certificatePath);
+        }
+
+        $publicKey = file_get_contents($certificatePath);
+
+        if (!$publicKey) {
+            throw new \Exception('Failed to read certificate file');
+        }
+
+        // Create a temporary file for the certificate
+        $tempCertFile = tempnam(sys_get_temp_dir(), 'mpesa_cert_');
+        file_put_contents($tempCertFile, $publicKey);
+
+        // Encrypt the password using the certificate
+        $encrypted = '';
+        $encryptedSuccess = openssl_public_encrypt($password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
+
+        // Clean up temporary file
+        unlink($tempCertFile);
+
+        if (!$encryptedSuccess) {
+            throw new \Exception('Failed to encrypt security credential');
+        }
+
+        return base64_encode($encrypted);
+    }
+
+    public function b2c($phone, $command, $amount, $remarks, $occasion)
+    {
+        $accessToken = $this->getAccessToken();
+
+        $securityCredential = $this->securityCredential();
+
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->urls['b2c_url']);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $curl_post_data = [
+            'OriginatorConversationID' => Str::uuid(),
+            'InitiatorName' => $this->initiatorName,
+            'SecurityCredential' => $securityCredential,
+            'CommandID' => $command,
+            'Amount' => $amount,
+            'PartyA' => $this->businessShortcode,
+            'PartyB' => $phone,
+            'Remarks' => $remarks,
+            'QueueTimeOutURL' => $this->callbacks['b2c_timeout_url'],
+            'ResultURL' => $this->callbacks['b2c_result_url'],
+            'Occasion' => $occasion
+        ];
+
+        $dataString = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
+
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
+
+        Log::info('B2C Response:', [
+            'raw' => $data
+        ]);
+
+        return $data;
     }
 }
