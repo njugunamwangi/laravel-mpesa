@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MPesaC2B;
 use App\Services\MPesaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -45,6 +46,22 @@ class C2BController extends Controller
 
         Log::info('C2B Confirmation Result:', [
             'raw' => $result
+        ]);
+
+        MPesaC2B::create([
+            'Transaction_type' => $result['TransactionType'],
+            'mpesa_receipt_number' => $result['TransID'],
+            'Transaction_Time' => $result['TransTime'],
+            'amount' => $result['TransAmount'],
+            'Business_Shortcode' => $result['BusinessShortCode'],
+            'Account_Number' => $result['BillRefNumber'],
+            'Invoice_no' => $result['InvoiceNumber'],
+            'Organization_Account_Balance' => $result['OrgAccountBalance'],
+            'ThirdParty_Transaction_ID' => $result['ThirdPartyTransID'],
+            'phonenumber' => $result['MSISDN'],
+            'FirstName' => $result['FirstName'],
+            'MiddleName' => $result['MiddleName'],
+            'LastName' => $result['LastName'],
         ]);
 
         return response()->json([
