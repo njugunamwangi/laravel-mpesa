@@ -26,7 +26,7 @@ return [
         |The Lipa na Mpesa Online ShortCode (Paybill Number)
         |-----------------------------------------------------------
     */
-    'shortcode' => env('MPESA_BUSINESS_SHORTCODE', '174379'),
+    'shortcode' => env('MPESA_SHORTCODE', '174379'),
 
     /*--------------------------------------------------------------
         |The Lipa na Mpesa Online ShortCode  (Till Number)
@@ -50,7 +50,7 @@ return [
         |Mpesa B2C ShortCode
         |------------------------------------------
     */
-    'b2c_shortcode' => env('MPESA_B2C_SHORTCODE'),
+    'business_shortcode' => env('MPESA_BUSINESS_SHORTCODE'),
 
     /*-----------------------------------------
         |Mpesa Callback URLS for various APIs
@@ -79,6 +79,7 @@ return [
         'process_request_url' => env('MPESA_PROCESS_REQUEST_URL'),
         'stk_push_query_url' => env('MPESA_STK_PUSH_QUERY_URL'),
         'register_c2b_urls' => env('MPESA_REGISTER_C2B_URLS'),
+        'b2c_url' => env('MPESA_B2C_URL'),
     ]
 
 ];
