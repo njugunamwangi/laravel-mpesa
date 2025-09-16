@@ -331,4 +331,45 @@ class MPesaService
 
         return $data;
     }
+
+    public function transactionStatus($originatorConversationID, $transactionId)
+    {
+        $accessToken = $this->getAccessToken();
+        $securityCredential = $this->securityCredential();
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->urls['transaction_status_url']);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $curl_post_data = [
+            'Initiator' => $this->initiatorName,
+            'SecurityCredential' => $securityCredential,
+            'CommandID' => 'TransactionStatusQuery',
+            'TransactionID' => $transactionId,
+            'OriginatorConversationID' => $originatorConversationID,
+            'PartyA' => $this->businessShortcode,
+            'IdentifierType' => '4',
+            'QueueTimeOutURL' => $this->callbacks['status_timeout_url'],
+            'ResultURL' => $this->callbacks['status_result_url'],
+            'Remarks' => 'Ok',
+            'Occasion' => 'Ok',
+        ];
+
+        $dataString = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
+
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
+
+        Log::info('Transaction Status Response:', [
+            'raw' => $data
+        ]);
+
+        return $data;
+
+    }
 }

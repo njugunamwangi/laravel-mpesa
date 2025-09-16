@@ -80,6 +80,7 @@ return [
         'stk_push_query_url' => env('MPESA_STK_PUSH_QUERY_URL'),
         'register_c2b_urls' => env('MPESA_REGISTER_C2B_URLS'),
         'b2c_url' => env('MPESA_B2C_URL'),
+        'transaction_status_url' => env('MPESA_TRANSACTION_STATUS_URL'),
     ]
 
 ];
