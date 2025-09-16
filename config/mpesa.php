@@ -58,7 +58,6 @@ return [
     */
 
     'callbacks' => [
-        'c2b_register_url' => env('MPESA_C2B_REGISTER_URL'),
         'c2b_validation_url' => env('MPESA_C2B_VALIDATION_URL'),
         'c2b_confirmation_url' => env('MPESA_C2B_CONFIRMATION_URL'),
         'b2c_result_url' => env('MPESA_B2C_RESULT_URL'),
@@ -81,6 +80,7 @@ return [
         'register_c2b_urls' => env('MPESA_REGISTER_C2B_URLS'),
         'b2c_url' => env('MPESA_B2C_URL'),
         'transaction_status_url' => env('MPESA_TRANSACTION_STATUS_URL'),
+        'account_balance_url' => env('MPESA_ACCOUNT_BALANCE_URL')
     ]
 
 ];

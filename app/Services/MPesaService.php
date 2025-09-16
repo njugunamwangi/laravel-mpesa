@@ -77,6 +77,41 @@ class MPesaService
         return $result->access_token ?? null;
     }
 
+    public function securityCredential()
+    {
+        $password = $this->initiatorPassword;
+
+        // Read the certificate file
+        $certificatePath = storage_path('app/public/sandboxCertificate.cer');
+
+        if (!file_exists($certificatePath)) {
+            throw new \Exception('Certificate file not found: ' . $certificatePath);
+        }
+
+        $publicKey = file_get_contents($certificatePath);
+
+        if (!$publicKey) {
+            throw new \Exception('Failed to read certificate file');
+        }
+
+        // Create a temporary file for the certificate
+        $tempCertFile = tempnam(sys_get_temp_dir(), 'mpesa_cert_');
+        file_put_contents($tempCertFile, $publicKey);
+
+        // Encrypt the password using the certificate
+        $encrypted = '';
+        $encryptedSuccess = openssl_public_encrypt($password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
+
+        // Clean up temporary file
+        unlink($tempCertFile);
+
+        if (!$encryptedSuccess) {
+            throw new \Exception('Failed to encrypt security credential');
+        }
+
+        return base64_encode($encrypted);
+    }
+
     /**
      * Perform STK Push request
      */
@@ -255,41 +290,6 @@ class MPesaService
         return $response;
     }
 
-    public function securityCredential()
-    {
-        $password = $this->initiatorPassword;
-
-        // Read the certificate file
-        $certificatePath = storage_path('app/public/sandboxCertificate.cer');
-
-        if (!file_exists($certificatePath)) {
-            throw new \Exception('Certificate file not found: ' . $certificatePath);
-        }
-
-        $publicKey = file_get_contents($certificatePath);
-
-        if (!$publicKey) {
-            throw new \Exception('Failed to read certificate file');
-        }
-
-        // Create a temporary file for the certificate
-        $tempCertFile = tempnam(sys_get_temp_dir(), 'mpesa_cert_');
-        file_put_contents($tempCertFile, $publicKey);
-
-        // Encrypt the password using the certificate
-        $encrypted = '';
-        $encryptedSuccess = openssl_public_encrypt($password, $encrypted, $publicKey, OPENSSL_PKCS1_PADDING);
-
-        // Clean up temporary file
-        unlink($tempCertFile);
-
-        if (!$encryptedSuccess) {
-            throw new \Exception('Failed to encrypt security credential');
-        }
-
-        return base64_encode($encrypted);
-    }
-
     public function b2c($phone, $command, $amount, $remarks, $occasion)
     {
         $accessToken = $this->getAccessToken();
@@ -371,5 +371,38 @@ class MPesaService
 
         return $data;
 
+    }
+
+    public function accountBalance()
+    {
+        $accessToken = $this->getAccessToken();
+        $securityCredential = $this->securityCredential();
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
+        $curl_post_data = [
+            'Initiator' => $this->initiatorName,
+            'SecurityCredential' => $securityCredential,
+            'CommandID' => 'AccountBalance',
+            'PartyA' => $this->businessShortcode,
+            'IdentifierType' => '4',
+            'QueueTimeOutURL' => $this->callbacks['balance_timeout_url'],
+            'ResultURL' => $this->callbacks['balance_result_url'],
+            'Remarks' => 'Ok',
+        ];
+
+        $dataString = json_encode($curl_post_data);
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->urls['account_balance_url']);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
+
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
+
+        return $data;
     }
 }
