@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccessTokenController;
+use App\Http\Controllers\AccountBalanceController;
 use App\Http\Controllers\B2CController;
 use App\Http\Controllers\C2BController;
 use App\Http\Controllers\STKPushController;
@@ -22,7 +23,10 @@ Route::get('/c2b-register', [C2BController::class, 'register']);
 
 // B2C Routes
 Route::get('/b2c', [B2CController::class, 'b2c']);
-Route::get('/b2c-security-credential', [B2CController::class, 'securityCredential']);
+Route::get('/security-credential', [B2CController::class, 'securityCredential']);
 
 // Transaction Status Routes
 Route::get('/transaction-status', [TransactionStatusController::class, 'index']);
+
+// Account Balance Routes
+Route::get('/account-balance', [AccountBalanceController::class, 'index']);
