@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MPesaB2C;
 use App\Services\MPesaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +19,7 @@ class B2CController extends Controller
     public function securityCredential()
     {
         $result = $this->mPesaService->securityCredential();
-        
+
         return response()->json([
             'success' => true,
             'data' => $result
@@ -34,6 +35,23 @@ class B2CController extends Controller
         $occasion = 'B2C Test';
 
         $result = $this->mPesaService->b2c($phone, $command, $amount, $remarks, $occasion);
+
+        Log::info('B2C Result:', [
+            'raw' => $result
+        ]);
+
+        if($result['ResponseCode'] == 0) {
+
+            MPesaB2C::create([
+                'result_code' => $result['ResponseCode'],
+                'result_desc' => $result['ResponseDescription'],
+                'originator_conversation_id' => $result['OriginatorConversationID'],
+                'conversation_id' => $result['ConversationID'],
+                'transaction_amount' => $amount,
+                'registered_customer' => $phone,
+                'transaction_date_time' => now(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
