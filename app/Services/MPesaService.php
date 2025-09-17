@@ -441,4 +441,41 @@ class MPesaService
 
         return $data;
     }
+
+    public function taxRemittance($amount, $remarks, $kraPayBillNumber, $kraPin)
+    {
+        $accessToken = $this->getAccessToken();
+        $securityCredential = $this->securityCredential();
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->urls['tax_remittance_url']);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $curl_post_data = [
+            'Initiator' => $this->initiatorName,
+            'SecurityCredential' => $securityCredential,
+            'CommandID' => 'PayTaxToKRA',
+            'PartyA' => $this->businessShortcode,
+            'PartyB' => $kraPayBillNumber,
+            'AccountReference' => $kraPin,
+            'SenderIdentifierType' => '4',
+            'RecieverIdentifierType' => '4',
+            'Amount' => $amount,
+            'Remarks' => $remarks,
+            'QueueTimeOutURL' => $this->callbacks['tax_remittance_timeout_url'],
+            'ResultURL' => $this->callbacks['tax_remittance_result_url'],
+        ];
+
+        $dataString = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
+
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
+
+        return $data;
+    }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\B2CController;
 use App\Http\Controllers\C2BController;
 use App\Http\Controllers\ReversalController;
 use App\Http\Controllers\STKPushController;
+use App\Http\Controllers\TaxRemittanceController;
 use App\Http\Controllers\TransactionStatusController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,3 +36,7 @@ Route::post('/balance/timeout', [AccountBalanceController::class, 'timeout'])->n
 // Reversal
 Route::post('/reversal/result', [ReversalController::class, 'result'])->name('reversal.result');
 Route::post('/reversal/timeout', [ReversalController::class, 'timeout'])->name('reversal.timeout');
+
+// Tax Remittance
+Route::post('/tax-remittance/result', [TaxRemittanceController::class, 'result'])->name('tax.remittance.result');
+Route::post('/tax-remittance/timeout', [TaxRemittanceController::class, 'timeout'])->name('tax.remittance.timeout');
