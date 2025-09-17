@@ -63,11 +63,41 @@ class B2CController extends Controller
     public function result()
     {
         Log::info("B2C Result URL has been hit");
+
+        header('Content-Type: application/json');
+
+        $resultCallBackResponse = file_get_contents('php://input');
+
+        // Pretty print the JSON
+        $prettyJson = json_encode(json_decode($resultCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        $logFile = 'b2c_result.json';
+
+        $log = fopen($logFile, 'a');
+
+        fwrite($log, $prettyJson . "\n");
+
+        fclose($log);
     }
 
     public function timeout()
     {
         Log::info("B2C Timeout URL has been hit");
+
+        header('Content-Type: application/json');
+
+        $timeoutCallBackResponse = file_get_contents('php://input');
+
+        // Pretty print the JSON
+        $prettyJson = json_encode(json_decode($timeoutCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        $logFile = 'b2c_timeout.json';
+
+        $log = fopen($logFile, 'a');
+
+        fwrite($log, $prettyJson . "\n");
+
+        fclose($log);
     }
 
 

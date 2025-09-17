@@ -80,7 +80,8 @@ return [
         'register_c2b_urls' => env('MPESA_REGISTER_C2B_URLS'),
         'b2c_url' => env('MPESA_B2C_URL'),
         'transaction_status_url' => env('MPESA_TRANSACTION_STATUS_URL'),
-        'account_balance_url' => env('MPESA_ACCOUNT_BALANCE_URL')
+        'account_balance_url' => env('MPESA_ACCOUNT_BALANCE_URL'),
+        'reversal_url' => env('MPESA_REVERSAL_URL'),
     ]
 
 ];

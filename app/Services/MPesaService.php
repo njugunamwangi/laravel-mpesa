@@ -405,4 +405,40 @@ class MPesaService
 
         return $data;
     }
+
+    public function reversal($transactionId, $amount, $remarks, $occasion)
+    {
+        $accessToken = $this->getAccessToken();
+        $securityCredential = $this->securityCredential();
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->urls['reversal_url']);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $curl_post_data = [
+            'Initiator' => $this->initiatorName,
+            'SecurityCredential' => $securityCredential,
+            'CommandID' => 'TransactionReversal',
+            'TransactionID' => $transactionId,
+            'ReceiverParty' => $this->businessShortcode,
+            'RecieverIdentifierType' => '11',
+            'QueueTimeOutURL' => $this->callbacks['reversal_timeout_url'],
+            'ResultURL' => $this->callbacks['reversal_result_url'],
+            'Amount' => $amount,
+            'Remarks' => $remarks,
+            'Occasion' => $occasion
+        ];
+
+        $dataString = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
+
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
+
+        return $data;
+    }
 }
