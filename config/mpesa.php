@@ -71,6 +71,8 @@ return [
         'reversal_timeout_url' => env('MPESA_REVERSAL_TIMEOUT_URL'),
         'b2b_result_url' => env('MPESA_B2B_RESULT_URL'),
         'b2b_timeout_url' => env('MPESA_B2B_TIMEOUT_URL'),
+        'tax_remittance_result_url' => env('MPESA_TAX_REMITTANCE_RESULT_URL'),
+        'tax_remittance_timeout_url' => env('MPESA_TAX_REMITTANCE_TIMEOUT_URL'),
     ],
 
     'urls' => [
@@ -82,6 +84,7 @@ return [
         'transaction_status_url' => env('MPESA_TRANSACTION_STATUS_URL'),
         'account_balance_url' => env('MPESA_ACCOUNT_BALANCE_URL'),
         'reversal_url' => env('MPESA_REVERSAL_URL'),
+        'tax_remittance_url' => env('MPESA_TAX_REMITTANCE_URL'),
     ]
 
 ];

@@ -6,6 +6,7 @@ use App\Http\Controllers\B2CController;
 use App\Http\Controllers\C2BController;
 use App\Http\Controllers\ReversalController;
 use App\Http\Controllers\STKPushController;
+use App\Http\Controllers\TaxRemittanceController;
 use App\Http\Controllers\TransactionStatusController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,3 +35,6 @@ Route::get('/account-balance', [AccountBalanceController::class, 'index']);
 
 // Reversal Routes
 Route::get('/reversal', [ReversalController::class, 'index']);
+
+// Tax Remittance Routes
+Route::get('/tax-remittance', [TaxRemittanceController::class, 'index']);
