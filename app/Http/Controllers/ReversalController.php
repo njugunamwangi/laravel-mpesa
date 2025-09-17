@@ -6,7 +6,7 @@ use App\Services\MPesaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class TransactionStatusController extends Controller
+class ReversalController extends Controller
 {
     protected $mPesaService;
 
@@ -17,10 +17,12 @@ class TransactionStatusController extends Controller
 
     public function index()
     {
-        $originatorConversationID = 'AG_20190826_0000777ab7d848b9e721';
         $transactionId = 'OEI2AK4Q16';
+        $amount = 1;
+        $remarks = 'Reversal Test';
+        $occasion = 'Reversal Test';
 
-        $result = $this->mPesaService->transactionStatus($originatorConversationID, $transactionId);
+        $result = $this->mPesaService->reversal($transactionId, $amount, $remarks, $occasion);
 
         return response()->json([
             'success' => true,
@@ -30,7 +32,7 @@ class TransactionStatusController extends Controller
 
     public function result()
     {
-        Log::info("Transaction Status Result URL has been hit");
+        Log::info("Reversal Result URL has been hit");
 
         header('Content-Type: application/json');
 
@@ -39,7 +41,7 @@ class TransactionStatusController extends Controller
         // Pretty print the JSON
         $prettyJson = json_encode(json_decode($resultCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        $logFile = 'transaction_status_result.json';
+        $logFile = 'reversal_result.json';
 
         $log = fopen($logFile, 'a');
 
@@ -50,7 +52,7 @@ class TransactionStatusController extends Controller
 
     public function timeout()
     {
-        Log::info("Transaction Status Timeout URL has been hit");
+        Log::info("Reversal Timeout URL has been hit");
 
         header('Content-Type: application/json');
 
@@ -59,7 +61,7 @@ class TransactionStatusController extends Controller
         // Pretty print the JSON
         $prettyJson = json_encode(json_decode($timeoutCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        $logFile = 'transaction_status_timeout.json';
+        $logFile = 'reversal_timeout.json';
 
         $log = fopen($logFile, 'a');
 
@@ -67,4 +69,5 @@ class TransactionStatusController extends Controller
 
         fclose($log);
     }
+
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountBalanceController;
 use App\Http\Controllers\B2CController;
 use App\Http\Controllers\C2BController;
+use App\Http\Controllers\ReversalController;
 use App\Http\Controllers\STKPushController;
 use App\Http\Controllers\TransactionStatusController;
 use Illuminate\Http\Request;
@@ -30,3 +31,7 @@ Route::post('/transaction/timeout', [TransactionStatusController::class, 'timeou
 // Account Balance
 Route::post('/balance/result', [AccountBalanceController::class, 'result'])->name('account.balance.result');
 Route::post('/balance/timeout', [AccountBalanceController::class, 'timeout'])->name('account.balance.timeout');
+
+// Reversal
+Route::post('/reversal/result', [ReversalController::class, 'result'])->name('reversal.result');
+Route::post('/reversal/timeout', [ReversalController::class, 'timeout'])->name('reversal.timeout');
