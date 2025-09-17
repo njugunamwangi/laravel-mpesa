@@ -42,7 +42,6 @@ class TaxRemittanceController extends Controller
 
         $resultCallBackResponse = file_get_contents('php://input');
 
-        // Pretty print the JSON
         $prettyJson = json_encode(json_decode($resultCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $logFile = 'tax_remittance_result.json';
@@ -62,7 +61,6 @@ class TaxRemittanceController extends Controller
 
         $timeoutCallBackResponse = file_get_contents('php://input');
 
-        // Pretty print the JSON
         $prettyJson = json_encode(json_decode($timeoutCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $logFile = 'tax_remittance_timeout.json';

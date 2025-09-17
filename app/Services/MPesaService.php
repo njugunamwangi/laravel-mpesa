@@ -252,42 +252,28 @@ class MPesaService
         return $data;
     }
 
-    public function c2bValidation()
+    public function c2b()
     {
-        header('Content-Type: application/json');
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
 
-        $response = '{"ResultCode":0,"ResultDesc":"Validation received successfully"}';
+        $curl_post_data = [
+            'ShortCode' => $this->businessShortcode,
+            'ResponseType' => 'Completed',
+            'ConfirmationURL' => $this->callbacks['c2b_confirmation_url'],
+            'ValidationURL' => $this->callbacks['c2b_validation_url']
+        ];
 
-        $mPesaResponse = file_get_contents('php://input');
+        $dataString = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
 
-        $logFile = 'c2b_validation.txt';
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
 
-        $log = fopen($logFile, 'a');
-
-        fwrite($log, $mPesaResponse);
-
-        fclose($log);
-
-        return $response;
-    }
-
-    public function c2bConfirmation()
-    {
-        header('Content-Type: application/json');
-
-        $response = '{"ResultCode":0,"ResultDesc":"Confirmation received successfully"}';
-
-        $mPesaResponse = file_get_contents('php://input');
-
-        $logFile = 'c2b_confirmation.json';
-
-        $log = fopen($logFile, 'a');
-
-        fwrite($log, $mPesaResponse);
-
-        fclose($log);
-
-        return $response;
+        return $data;
     }
 
     public function b2c($phone, $command, $amount, $remarks, $occasion)
@@ -465,6 +451,36 @@ class MPesaService
             'Remarks' => $remarks,
             'QueueTimeOutURL' => $this->callbacks['tax_remittance_timeout_url'],
             'ResultURL' => $this->callbacks['tax_remittance_result_url'],
+        ];
+
+        $dataString = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
+
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
+
+        return $data;
+    }
+
+    public function qrCode($merchantName, $refNo, $amount, $trxCode, $cpi, $size)
+    {
+        $accessToken = $this->getAccessToken();
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->urls['qr_code_url']);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $curl_post_data = [
+            'MerchantName' => $merchantName,
+            'RefNo' => $refNo,
+            'Amount' => $amount,
+            'TrxCode' => $trxCode,
+            'CPI' => $cpi,
+            'Size' => $size
         ];
 
         $dataString = json_encode($curl_post_data);

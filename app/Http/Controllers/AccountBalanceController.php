@@ -34,7 +34,6 @@ class AccountBalanceController extends Controller
 
         $resultCallBackResponse = file_get_contents('php://input');
 
-        // Pretty print the JSON
         $prettyJson = json_encode(json_decode($resultCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $logFile = 'account_balance_result.json';
@@ -54,7 +53,6 @@ class AccountBalanceController extends Controller
 
         $timeoutCallBackResponse = file_get_contents('php://input');
 
-        // Pretty print the JSON
         $prettyJson = json_encode(json_decode($timeoutCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $logFile = 'account_balance_timeout.json';

@@ -34,7 +34,6 @@ class STKPushController extends Controller
 
             $result = $this->mPesaService->stkPush($phoneNumber, $amount, $accountReference, $transactionDesc);
 
-            // Pretty print the result in logs
             Log::info('STK Push Final Result:', [
                 'raw' => $result
             ]);

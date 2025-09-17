@@ -4,6 +4,7 @@ use App\Http\Controllers\AccessTokenController;
 use App\Http\Controllers\AccountBalanceController;
 use App\Http\Controllers\B2CController;
 use App\Http\Controllers\C2BController;
+use App\Http\Controllers\QRCodeController;
 use App\Http\Controllers\ReversalController;
 use App\Http\Controllers\STKPushController;
 use App\Http\Controllers\TaxRemittanceController;
@@ -22,8 +23,9 @@ Route::get('/stk-push-query', [STKPushController::class, 'query']);
 
 // C2B Routes
 Route::get('/c2b-register', [C2BController::class, 'register']);
+Route::get('/c2b', [C2BController::class, 'index']);
 
-// B2C Routes
+// B2C Routes,
 Route::get('/b2c', [B2CController::class, 'b2c']);
 Route::get('/security-credential', [B2CController::class, 'securityCredential']);
 
@@ -38,3 +40,6 @@ Route::get('/reversal', [ReversalController::class, 'index']);
 
 // Tax Remittance Routes
 Route::get('/tax-remittance', [TaxRemittanceController::class, 'index']);
+
+// QR Code Routes
+Route::get('/qr-code', [QRCodeController::class, 'index']);
