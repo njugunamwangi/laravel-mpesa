@@ -68,7 +68,6 @@ class B2CController extends Controller
 
         $resultCallBackResponse = file_get_contents('php://input');
 
-        // Pretty print the JSON
         $prettyJson = json_encode(json_decode($resultCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $logFile = 'b2c_result.json';
@@ -88,7 +87,6 @@ class B2CController extends Controller
 
         $timeoutCallBackResponse = file_get_contents('php://input');
 
-        // Pretty print the JSON
         $prettyJson = json_encode(json_decode($timeoutCallBackResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
         $logFile = 'b2c_timeout.json';

@@ -26,13 +26,9 @@ class C2BController extends Controller
         ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
-    public function validation()
+    public function index()
     {
-        $result = $this->mPesaService->c2bValidation();
-
-        Log::info('C2B Validation Result:', [
-            'raw' => $result
-        ]);
+        $result = $this->mPesaService->c2b();
 
         return response()->json([
             'success' => true,
@@ -40,33 +36,37 @@ class C2BController extends Controller
         ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
+    public function validation()
+    {
+        header('Content-Type: application/json');
+
+        $mPesaResponse = file_get_contents('php://input');
+
+        $prettyJson = json_encode(json_decode($mPesaResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        $logFile = 'c2b_validation.json';
+
+        $log = fopen($logFile, 'a');
+
+        fwrite($log, $prettyJson . "\n");
+
+        fclose($log);
+    }
+
     public function confirmation()
     {
-        $result = $this->mPesaService->c2bConfirmation();
+        header('Content-Type: application/json');
 
-        Log::info('C2B Confirmation Result:', [
-            'raw' => $result
-        ]);
+        $mPesaResponse = file_get_contents('php://input');
 
-        MPesaC2B::create([
-            'Transaction_type' => $result['TransactionType'],
-            'mpesa_receipt_number' => $result['TransID'],
-            'Transaction_Time' => $result['TransTime'],
-            'amount' => $result['TransAmount'],
-            'Business_Shortcode' => $result['BusinessShortCode'],
-            'Account_Number' => $result['BillRefNumber'],
-            'Invoice_no' => $result['InvoiceNumber'],
-            'Organization_Account_Balance' => $result['OrgAccountBalance'],
-            'ThirdParty_Transaction_ID' => $result['ThirdPartyTransID'],
-            'phonenumber' => $result['MSISDN'],
-            'FirstName' => $result['FirstName'],
-            'MiddleName' => $result['MiddleName'],
-            'LastName' => $result['LastName'],
-        ]);
+        $prettyJson = json_encode(json_decode($mPesaResponse), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
-        return response()->json([
-            'success' => true,
-            'data' => $result
-        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $logFile = 'c2b_confirmation.json';
+
+        $log = fopen($logFile, 'a');
+
+        fwrite($log, $prettyJson . "\n");
+
+        fclose($log);
     }
 }

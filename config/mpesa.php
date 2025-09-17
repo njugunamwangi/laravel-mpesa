@@ -85,6 +85,7 @@ return [
         'account_balance_url' => env('MPESA_ACCOUNT_BALANCE_URL'),
         'reversal_url' => env('MPESA_REVERSAL_URL'),
         'tax_remittance_url' => env('MPESA_TAX_REMITTANCE_URL'),
+        'qr_code_url' => env('MPESA_QR_CODE_URL'),
     ]
 
 ];
