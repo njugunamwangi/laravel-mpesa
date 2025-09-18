@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class MPesaB2B extends Model
+{
+    protected $guarded = ['id'];
+}

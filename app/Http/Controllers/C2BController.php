@@ -38,6 +38,8 @@ class C2BController extends Controller
 
     public function validation()
     {
+        Log::info("C2B Validation URL has been hit");
+        
         header('Content-Type: application/json');
 
         $mPesaResponse = file_get_contents('php://input');
@@ -55,6 +57,8 @@ class C2BController extends Controller
 
     public function confirmation()
     {
+        Log::info("C2B Confirmation URL has been hit");
+
         header('Content-Type: application/json');
 
         $mPesaResponse = file_get_contents('php://input');

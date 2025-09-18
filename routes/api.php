@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountBalanceController;
+use App\Http\Controllers\B2BController;
 use App\Http\Controllers\B2CController;
 use App\Http\Controllers\C2BController;
 use App\Http\Controllers\ReversalController;
@@ -24,6 +25,10 @@ Route::post('/c2b/confirmation', [C2BController::class, 'confirmation'])->name('
 // B2C
 Route::post('/b2c/result', [B2CController::class, 'result'])->name('b2c.result');
 Route::post('/b2c/timeout', [B2CController::class, 'timeout'])->name('b2c.timeout');
+
+// B2B
+Route::post('/b2b/result', [B2BController::class, 'result'])->name('b2b.result');
+Route::post('/b2b/timeout', [B2BController::class, 'timeout'])->name('b2b.timeout');
 
 // Transaction Status
 Route::post('/transaction/result', [TransactionStatusController::class, 'result'])->name('transaction.status.result');

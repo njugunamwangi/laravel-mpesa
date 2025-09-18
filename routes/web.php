@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccessTokenController;
 use App\Http\Controllers\AccountBalanceController;
+use App\Http\Controllers\B2BController;
 use App\Http\Controllers\B2CController;
 use App\Http\Controllers\C2BController;
 use App\Http\Controllers\QRCodeController;
@@ -43,3 +44,7 @@ Route::get('/tax-remittance', [TaxRemittanceController::class, 'index']);
 
 // QR Code Routes
 Route::get('/qr-code', [QRCodeController::class, 'index']);
+
+// B2B Routes
+Route::get('/b2b-pay-bill', [B2BController::class, 'b2bPayBill']);
+Route::get('/b2b-buy-goods', [B2BController::class, 'b2bBuyGoods']);
