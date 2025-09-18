@@ -70,6 +70,14 @@ class B2CController extends Controller
         if(isset($responseData['Result']) && $responseData['Result']['ResultType'] == 0 && $responseData['Result']['ResultCode'] == 0) {
             $result = $responseData['Result'];
 
+            // Helper function to safely get ResultParameter value
+            $getResultParameter = function($index, $default = null) use ($result) {
+                if (isset($result['ResultParameters']['ResultParameter'][$index]['Value'])) {
+                    return $result['ResultParameters']['ResultParameter'][$index]['Value'];
+                }
+                return $default;
+            };
+
             MPesaB2C::create([
                 'result_type' => $result['ResultType'],
                 'result_code' => $result['ResultCode'],
@@ -77,13 +85,13 @@ class B2CController extends Controller
                 'originator_conversation_id' => $result['OriginatorConversationID'],
                 'conversation_id' => $result['ConversationID'],
                 'transaction_id' => $result['TransactionID'],
-                'transaction_amount' => $result['ResultParameters']['ResultParameter'][0]['Value'],
-                'is_registered_customer' => $result['ResultParameters']['ResultParameter'][6]['Value'] == 'Y' ? true : false,
-                'receiver_party_public_name' => $result['ResultParameters']['ResultParameter'][2]['Value'],
-                'transaction_date_time' => $result['ResultParameters']['ResultParameter'][3]['Value'],
-                'b2c_charges_paid_account_available_funds' => $result['ResultParameters']['ResultParameter'][7]['Value'],
-                'b2c_utility_account_available_funds' => $result['ResultParameters']['ResultParameter'][4]['Value'],
-                'b2c_working_account_available_funds' => $result['ResultParameters']['ResultParameter'][5]['Value'],
+                'transaction_amount' => $getResultParameter(0),
+                'is_registered_customer' => $getResultParameter(6) == 'Y' ? true : false,
+                'receiver_party_public_name' => $getResultParameter(2),
+                'transaction_date_time' => $getResultParameter(3),
+                'b2c_charges_paid_account_available_funds' => $getResultParameter(7),
+                'b2c_utility_account_available_funds' => $getResultParameter(4),
+                'b2c_working_account_available_funds' => $getResultParameter(5),
             ]);
         }
     }

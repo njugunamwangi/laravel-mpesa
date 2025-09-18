@@ -74,8 +74,23 @@ class B2BController extends Controller
         if(isset($responseData['Result']) && $responseData['Result']['ResultType'] == 0 && $responseData['Result']['ResultCode'] == 0) {
             $result = $responseData['Result'];
 
+            // Helper function to safely get ResultParameter value
+            $getResultParameter = function($index, $default = null) use ($result) {
+                if (isset($result['ResultParameters']['ResultParameter'][$index]['Value'])) {
+                    return $result['ResultParameters']['ResultParameter'][$index]['Value'];
+                }
+                return $default;
+            };
+
             // Helper function to parse amount string
             $parseAmountString = function($amountString) {
+                if (empty($amountString)) {
+                    return [
+                        'minimum' => 0,
+                        'basic' => 0.0
+                    ];
+                }
+
                 // Extract MinimumAmount and BasicAmount from string like "{Amount={CurrencyCode=KES, MinimumAmount=499800141, BasicAmount=4998001.41}}"
                 preg_match('/MinimumAmount=(\d+)/', $amountString, $minMatches);
                 preg_match('/BasicAmount=([\d.]+)/', $amountString, $basicMatches);
@@ -87,10 +102,10 @@ class B2BController extends Controller
             };
 
             // Parse debit account balance
-            $debitBalance = $parseAmountString($result['ResultParameters']['ResultParameter'][6]['Value']);
+            $debitBalance = $parseAmountString($getResultParameter(6));
 
             // Parse initiator account balance
-            $initiatorBalance = $parseAmountString($result['ResultParameters']['ResultParameter'][7]['Value']);
+            $initiatorBalance = $parseAmountString($getResultParameter(7));
 
             MPesaB2B::create([
                 'result_type' => $result['ResultType'],
@@ -99,9 +114,9 @@ class B2BController extends Controller
                 'originator_conversation_id' => $result['OriginatorConversationID'],
                 'conversation_id' => $result['ConversationID'],
                 'transaction_id' => $result['TransactionID'],
-                'transaction_amount' => $result['ResultParameters']['ResultParameter'][5]['Value'],
-                'receiver_party_public_name' => $result['ResultParameters']['ResultParameter'][1]['Value'],
-                'transaction_date_time' => $result['ResultParameters']['ResultParameter'][3]['Value'],
+                'transaction_amount' => $getResultParameter(5),
+                'receiver_party_public_name' => $getResultParameter(1),
+                'transaction_date_time' => $getResultParameter(3),
                 'debit_account_current_balance_minimum' => $debitBalance['minimum'],
                 'debit_account_current_balance_basic' => $debitBalance['basic'],
                 'initiator_account_current_balance_minimum' => $initiatorBalance['minimum'],
