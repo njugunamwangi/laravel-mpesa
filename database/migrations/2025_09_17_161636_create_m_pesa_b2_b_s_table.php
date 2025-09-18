@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('m_pesa_b2_c_s', function (Blueprint $table) {
+        Schema::create('m_pesa_b2_b_s', function (Blueprint $table) {
             $table->id();
             $table->string('result_type')->nullable();
             $table->string('result_code')->nullable();
@@ -20,12 +20,12 @@ return new class extends Migration
             $table->string('conversation_id')->nullable();
             $table->string('transaction_id')->nullable();
             $table->string('transaction_amount')->nullable();
-            $table->boolean('is_registered_customer')->nullable();
             $table->string('receiver_party_public_name')->nullable();
             $table->string('transaction_date_time')->nullable();
-            $table->string('b2c_charges_paid_account_available_funds')->nullable();
-            $table->string('b2c_utility_account_available_funds')->nullable();
-            $table->string('b2c_working_account_available_funds')->nullable();
+            $table->string('debit_account_current_balance_minimum')->nullable();
+            $table->string('debit_account_current_balance_basic')->nullable();
+            $table->string('initiator_account_current_balance_minimum')->nullable();
+            $table->string('initiator_account_current_balance_basic')->nullable();
             $table->timestamps();
         });
     }
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('m_pesa_b2_c_s');
+        Schema::dropIfExists('m_pesa_b2_b_s');
     }
 };

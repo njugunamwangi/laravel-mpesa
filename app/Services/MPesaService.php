@@ -26,7 +26,6 @@ class MPesaService
         $this->consumerSecret       = config('mpesa.mpesa_consumer_secret');
         $this->passKey              = config('mpesa.passkey');
         $this->shortcode            = config('mpesa.shortcode');
-        $this->tillNumber           = config('mpesa.till_number');
         $this->initiatorName        = config('mpesa.initiator_name');
         $this->initiatorPassword    = config('mpesa.initiator_password');
         $this->businessShortcode    = config('mpesa.business_shortcode');
@@ -254,7 +253,12 @@ class MPesaService
 
     public function c2b()
     {
+        $accessToken = $this->getAccessToken();
+
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
         $curl = curl_init();
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
 
@@ -481,6 +485,44 @@ class MPesaService
             'TrxCode' => $trxCode,
             'CPI' => $cpi,
             'Size' => $size
+        ];
+
+        $dataString = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $dataString);
+
+        $response = curl_exec($curl);
+        $data = json_decode($response, true);
+        curl_close($curl);
+
+        return $data;
+    }
+
+    public function b2b($payBill, $amount, $command, $phone, $accountReference, $remarks)
+    {
+        $accessToken = $this->getAccessToken();
+        $securityCredential = $this->securityCredential();
+        $headers = ['Content-Type: application/json', 'Authorization: Bearer ' . $accessToken];
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $this->urls['b2b_url']);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+
+        $curl_post_data = [
+            'Initiator' => $this->initiatorName,
+            'SecurityCredential' => $securityCredential,
+            'CommandID' => $command,
+            'SenderIdentifierType' => '4',
+            'RecieverIdentifierType' => '4',
+            'PartyA' => $this->businessShortcode,
+            'PartyB' => $payBill,
+            'Amount' => $amount,
+            'Requester' => $phone,
+            'AccountReference' => $accountReference,
+            'Remarks' => $remarks,
+            'QueueTimeOutURL' => $this->callbacks['b2b_timeout_url'],
+            'ResultURL' => $this->callbacks['b2b_result_url'],
         ];
 
         $dataString = json_encode($curl_post_data);

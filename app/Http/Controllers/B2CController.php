@@ -40,19 +40,6 @@ class B2CController extends Controller
             'raw' => $result
         ]);
 
-        if($result['ResponseCode'] == 0) {
-
-            MPesaB2C::create([
-                'result_code' => $result['ResponseCode'],
-                'result_desc' => $result['ResponseDescription'],
-                'originator_conversation_id' => $result['OriginatorConversationID'],
-                'conversation_id' => $result['ConversationID'],
-                'transaction_amount' => $amount,
-                'registered_customer' => $phone,
-                'transaction_date_time' => now(),
-            ]);
-        }
-
         return response()->json([
             'success' => true,
             'data' => $result
@@ -77,6 +64,28 @@ class B2CController extends Controller
         fwrite($log, $prettyJson . "\n");
 
         fclose($log);
+
+        $responseData = json_decode($resultCallBackResponse, true);
+
+        if(isset($responseData['Result']) && $responseData['Result']['ResultType'] == 0 && $responseData['Result']['ResultCode'] == 0) {
+            $result = $responseData['Result'];
+
+            MPesaB2C::create([
+                'result_type' => $result['ResultType'],
+                'result_code' => $result['ResultCode'],
+                'result_desc' => $result['ResultDesc'],
+                'originator_conversation_id' => $result['OriginatorConversationID'],
+                'conversation_id' => $result['ConversationID'],
+                'transaction_id' => $result['TransactionID'],
+                'transaction_amount' => $result['ResultParameters']['ResultParameter'][0]['Value'],
+                'is_registered_customer' => $result['ResultParameters']['ResultParameter'][6]['Value'] == 'Y' ? true : false,
+                'receiver_party_public_name' => $result['ResultParameters']['ResultParameter'][2]['Value'],
+                'transaction_date_time' => $result['ResultParameters']['ResultParameter'][3]['Value'],
+                'b2c_charges_paid_account_available_funds' => $result['ResultParameters']['ResultParameter'][7]['Value'],
+                'b2c_utility_account_available_funds' => $result['ResultParameters']['ResultParameter'][4]['Value'],
+                'b2c_working_account_available_funds' => $result['ResultParameters']['ResultParameter'][5]['Value'],
+            ]);
+        }
     }
 
     public function timeout()
