@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MPesaC2B extends Model
 {
-    //
+    protected $guarded = ['id'];
+
+    protected $table = 'mpesa_c2bs';
 }

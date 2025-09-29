@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('m_pesa_c2_b_s', function (Blueprint $table) {
+        Schema::create('mpesa_c2bs', function (Blueprint $table) {
             $table->id();
             $table->string('Transaction_type')->nullable();
             $table->string('Transaction_ID')->nullable();
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('m_pesa_c2_b_s');
+        Schema::dropIfExists('mpesa_c2bs');
     }
 };
